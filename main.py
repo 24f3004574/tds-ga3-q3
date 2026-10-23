@@ -149,10 +149,14 @@ def handle_commit(body):
 
 
 def handle(body):
+    operation, evaluation = "?", str(body.get("evaluationId", ""))[:14] if isinstance(body, dict) else ""
     try:
         operation = validate_envelope(body)
-        return handle_propose(body) if operation == "propose" else handle_commit(body)
+        response = handle_propose(body) if operation == "propose" else handle_commit(body)
+        print(f"LOG {operation} {evaluation} -> 200", flush=True)
+        return response
     except ApiError as exc:
+        print(f"LOG {operation} {evaluation} -> {exc.status} {exc.code}", flush=True)
         return error(exc.status, exc.code)
 
 
